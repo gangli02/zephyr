@@ -1,0 +1,13 @@
+# Copyright (c) 2025 NXP
+# SPDX-License-Identifier: Apache-2.0
+
+# Config options for prerequisites mbedtls PSA
+config COEX_MBEDTLS_PSA
+	bool "mbed TLS PSA built-in"
+	select PSA_WANT_ALG_ECDSA if OPENTHREAD_ECDSA
+	select PSA_WANT_ALG_JPAKE
+	select PSA_WANT_ALG_GCM
+	help
+	  Use the mbed TLS PSA configuration pre-defined security scheme for coex application.
+
+source "Kconfig"
