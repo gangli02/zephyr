@@ -1,0 +1,14 @@
+/*
+ * Copyright 2025 NXP
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&m2_hci_bt_uart {
+	bt_hci_uart: bt_hci_uart {
+	 m2_bt_module: m2_bt_module {
+		/delete-property/ sdio-reset-gpios;
+		/delete-property/ w-disable-gpios;
+		};
+	};
+};
