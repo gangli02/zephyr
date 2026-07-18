@@ -1,16 +1,57 @@
+# Copyright 2026 NXP
+# SPDX-License-Identifier: Apache-2.0
+
 common:
   build_only: true
   tags:
     - net
-    - bluetooth
-    - wifi
-    - openthread
     - coex
 sample:
-  description: Test Bluetooth, Wi-Fi, and OpenThread coexistence shell functionality
+  description: Wireless protocol coexistence shell for testing BLE, Wi-Fi, and Thread concurrently
   name: Wireless coexistence shell
 tests:
-  sample.net.wireless.coex.shell.wifi_ble_ot.nxp:
+  # Wi-Fi + BLE + Thread (full coex)
+  sample.net.wireless.coex.shell.wifi_ble_ot:
+    tags:
+      - bluetooth
+      - wifi
+      - openthread
+    platform_allow:
+      - frdm_rw612
+      - rd_rw612_bga
+    integration_platforms:
+      - rd_rw612_bga
+    extra_args:
+      - SNIPPET="nxp-wifi;nxp-wifi-hostap;nxp-ot"
+      - COEX_BLE=ON
+      - COEX_WIFI=ON
+      - COEX_OT=ON
+      - CONFIG_BUILD_ONLY_NO_BLOBS=y
+
+  # Wi-Fi + BLE Classic + Thread
+  sample.net.wireless.coex.shell.wifi_ble_br_ot:
+    tags:
+      - bluetooth
+      - wifi
+      - openthread
+    platform_allow:
+      - frdm_rw612
+      - rd_rw612_bga
+    integration_platforms:
+      - rd_rw612_bga
+    extra_args:
+      - SNIPPET="nxp-wifi;nxp-wifi-hostap;nxp-ot"
+      - COEX_BLE=OFF
+      - COEX_BLE_CLASSIC=ON
+      - COEX_WIFI=ON
+      - COEX_OT=ON
+      - CONFIG_BUILD_ONLY_NO_BLOBS=y
+
+  # Wi-Fi + BLE (no Thread)
+  sample.net.wireless.coex.shell.wifi_ble:
+    tags:
+      - bluetooth
+      - wifi
     platform_allow:
       - frdm_rw612
       - rd_rw612_bga
@@ -18,44 +59,72 @@ tests:
     integration_platforms:
       - rd_rw612_bga
     extra_args:
+      - SNIPPET="nxp-wifi;nxp-wifi-hostap"
+      - COEX_BLE=ON
+      - COEX_WIFI=ON
       - CONFIG_BUILD_ONLY_NO_BLOBS=y
-      - EXTRA_CONF_FILE="
-          nxp/overlay_wifi_rw612.conf
-          nxp/overlay_wifi_hostap_rw612.conf
-          nxp/overlay_ot_rw612.conf"
 
-  sample.net.wireless.coex.shell.wifi_ble_br_ot.nxp:
+  # BLE + Thread (no Wi-Fi)
+  sample.net.wireless.coex.shell.ble_ot:
+    tags:
+      - bluetooth
+      - openthread
     platform_allow:
       - frdm_rw612
       - rd_rw612_bga
-      - mimxrt1060_evk@C/mimxrt1062/qspi
     integration_platforms:
       - rd_rw612_bga
     extra_args:
-      - CONF_FILE="prj_br.conf"
+      - SNIPPET="nxp-ot"
+      - COEX_BLE=ON
+      - COEX_WIFI=OFF
+      - COEX_OT=ON
       - CONFIG_BUILD_ONLY_NO_BLOBS=y
-      - EXTRA_CONF_FILE="
-          nxp/overlay_wifi_rw612.conf
-          nxp/overlay_wifi_hostap_rw612.conf
-          nxp/overlay_ot_rw612.conf"
 
-  # Auto-PTS test variant with privacy and MITM configurations
-  sample.net.wireless.coex.shell.auto_pts.nxp:
+  # BLE + Thread on MCXW72
+  sample.net.wireless.coex.shell.ble_ot.mcxw72:
+    tags:
+      - bluetooth
+      - openthread
+    platform_allow:
+      - frdm_mcxw72
+    integration_platforms:
+      - frdm_mcxw72
+    extra_args:
+      - SNIPPET="nxp-ot"
+      - COEX_BLE=ON
+      - COEX_WIFI=OFF
+      - COEX_OT=ON
+
+  # Auto-PTS certification
+  sample.net.wireless.coex.shell.auto_pts:
     harness: bluetooth
+    tags:
+      - bluetooth
     platform_allow:
       - frdm_rw612
       - rd_rw612_bga
-      - mimxrt1060_evk@C/mimxrt1062/qspi
     integration_platforms:
       - rd_rw612_bga
     extra_args:
-      - EXTRA_CONF_FILE="nxp/overlay_bt_auto_pts.conf"
+      - SNIPPET="nxp-bt-auto-pts"
+      - COEX_BLE=ON
+      - COEX_WIFI=OFF
       - CONFIG_BUILD_ONLY_NO_BLOBS=y
 
-  sample.net.wireless.coex.shell.ble_ot.nxp.mcxw72:
+  # BLE Classic + A2DP + Wi-Fi
+  sample.net.wireless.coex.shell.wifi_ble_br_a2dp:
+    tags:
+      - bluetooth
+      - wifi
     platform_allow:
-      - mcxw72_evk
+      - frdm_rw612
+      - rd_rw612_bga
     integration_platforms:
-      - mcxw72_evk
+      - rd_rw612_bga
     extra_args:
-      - EXTRA_CONF_FILE="nxp/overlay_ot_host_mcxw72.conf"
+      - SNIPPET="nxp-wifi;nxp-wifi-hostap;nxp-bt-a2dp"
+      - COEX_BLE=OFF
+      - COEX_BLE_CLASSIC=ON
+      - COEX_WIFI=ON
+      - CONFIG_BUILD_ONLY_NO_BLOBS=y

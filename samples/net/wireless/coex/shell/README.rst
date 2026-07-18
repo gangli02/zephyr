@@ -30,10 +30,29 @@ Supported Features
 ********************
 
 * Bluetooth Low Energy (BLE) via Bluetooth shell
+* Bluetooth Classic (BR/EDR) with A2DP, HFP, AVRCP
 * Wi-Fi (802.11) via Wi-Fi shell
 * Thread/IEEE 802.15.4 via OpenThread shell
 * Concurrent operation of all three protocols
 * Network management via net shell
+
+Configuration
+*************
+
+Protocol selection is controlled via CMake options:
+
+* ``COEX_BLE`` - Enable BLE protocol (default: ON)
+* ``COEX_BLE_CLASSIC`` - Enable BLE Classic/BR/EDR protocol (default: OFF)
+* ``COEX_WIFI`` - Enable Wi-Fi protocol (default: ON)
+* ``COEX_OT`` - Enable OpenThread protocol (default: OFF)
+
+Vendor-specific platform configurations are provided via NXP snippets:
+
+* ``nxp-wifi`` - NXP Wi-Fi driver, performance tuning, power management
+* ``nxp-wifi-hostap`` - WPA supplicant with enterprise, DPP, WPS support
+* ``nxp-ot`` - NXP OpenThread platform (RCP interface, PSA crypto)
+* ``nxp-bt-a2dp`` - A2DP streaming performance tuning
+* ``nxp-bt-auto-pts`` - Auto-PTS certification configurations
 
 Building and Running
 ********************
@@ -41,49 +60,43 @@ Building and Running
 Verify that the board and chip you are targeting provide Bluetooth LE, Wi-Fi,
 and Thread/802.15.4 support.
 
-Board-specific configuration files are provided in the boards directory:
+Wi-Fi + BLE + Thread (full coex on RW612):
 
-- :file:`boards/rd_rw612_bga.conf`
-  Configuration for RD RW612 BGA board with full coex support (BT + Wi-Fi + Thread).
+.. code-block:: console
 
-- :file:`boards/rd_rw612_bga.overlay`
-  Device tree overlay for RD RW612 BGA board.
+   west build -b rd_rw612_bga samples/net/wireless/coex/shell \
+     -S nxp-wifi -S nxp-wifi-hostap -S nxp-ot -- \
+     -DCOEX_BLE=ON -DCOEX_WIFI=ON -DCOEX_OT=ON
 
-- :file:`boards/frdm_rw612.conf`
-  Configuration for FRDM RW612 board with full coex support.
+Wi-Fi + BLE (default, no Thread):
 
-- :file:`boards/frdm_rw612.overlay`
-  Device tree overlay for FRDM RW612 board.
+.. code-block:: console
 
-- :file:`boards/mimxrt1060_evk_mimxrt1062_qspi_C.overlay`
-  Device tree overlay for MIMXRT1060 EVKC board.
+   west build -b rd_rw612_bga samples/net/wireless/coex/shell \
+     -S nxp-wifi -S nxp-wifi-hostap
 
-- :file:`boards/frdm_mcxw72.conf`
-  Configuration for FRDM MCXW72 board with BT + Thread coex support.
+BLE + Thread (no Wi-Fi):
 
-- :file:`boards/frdm_mcxw72.overlay`
-  Device tree overlay for FRDM MCXW72 board.
+.. code-block:: console
 
-Build the coex shell application like this:
+   west build -b rd_rw612_bga samples/net/wireless/coex/shell \
+     -S nxp-ot -- \
+     -DCOEX_WIFI=OFF -DCOEX_OT=ON
 
-.. zephyr-app-commands::
-   :zephyr-app: samples/net/wireless/coex/shell
-   :board: <board to use>
-   :goals: build
-   :compact:
+Wi-Fi + BLE on external module (IW610 with MIMXRT1060):
 
-For instance you can use NXP's RW612 RD board by selecting the rd_rw612_bga board.
+.. code-block:: console
 
-.. zephyr-app-commands::
-   :zephyr-app: samples/net/wireless/coex/shell
-   :board: rd_rw612_bga
-   :gen-args:
-      -DEXTRA_CONF_FILE="
-      nxp/overlay_wifi_rw612.conf
-      nxp/overlay_wifi_hostap_rw612.conf
-      nxp/overlay_ot_rw612.conf"
-   :goals: build
-   :compact:
+   west build -b mimxrt1060_evk@C/mimxrt1062/qspi samples/net/wireless/coex/shell \
+     -S nxp-wifi -S nxp-wifi-hostap
+
+BLE Classic + A2DP + Wi-Fi:
+
+.. code-block:: console
+
+   west build -b rd_rw612_bga samples/net/wireless/coex/shell \
+     -S nxp-wifi -S nxp-wifi-hostap -S nxp-bt-a2dp -- \
+     -DCOEX_BLE=OFF -DCOEX_BLE_CLASSIC=ON
 
 Sample console interaction
 ==========================
